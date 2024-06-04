@@ -194,10 +194,10 @@ export class Manager {
 		return new Promise<void>((resolve) => {
 			this.webApp.listen({
 				host: '0.0.0.0',
-				port: parseInt(config.port),
+				port: 8080,
 			}, (err) => {
 				if (err) return logError(err, 'loadWebApp', 'manager');
-				LoggerModule('API', `API is listening on port ${config.port}.`, 'cyan');
+				LoggerModule('API', 'API is listening on port 8080.', 'green');
 				resolve();
 			});
 		});
