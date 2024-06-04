@@ -48,8 +48,8 @@ export class Manager {
 		});
 
 		this.io.on('connection', async (socket) => {
-			const authQuery = socket.handshake.auth.token as string;
-			if (!authQuery || authQuery !== config.authQuery) return socket.disconnect(true);
+			const authKey = socket.handshake.auth.token as string;
+			if (!authKey || authKey !== config.authKey) return socket.disconnect(true);
 
 			return await this.setupSocket(socket);
 		});
