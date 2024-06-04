@@ -9,7 +9,7 @@ services:
       - stack.env
     build: ./frontend
     ports:
-      - "3000:3000"
+      - "35632:3000"
     depends_on:
       - backend
   backend:
@@ -21,4 +21,4 @@ services:
       - stack.env
     build: ./backend
     ports:
-      - "8080:8080"
+      - "33026:8080"
