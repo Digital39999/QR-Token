@@ -144,18 +144,3 @@ export default function Index() {
 		</VStack>
 	);
 }
-
-export const cryptoFunctions = {
-	createHash: async (withWhat: string) => {
-		return await fetch('/crypto', {
-			method: 'POST',
-			body: JSON.stringify({ type: 'createHash', withWhat }),
-		}).then((res) => res.json()) as Promise<{ status: number; data: string; }>;
-	},
-	privateDecrypt: async (withWhat: string, nonce: string) => {
-		return await fetch('/crypto', {
-			method: 'POST',
-			body: JSON.stringify({ type: 'privateDecrypt', withWhat, nonce }),
-		}).then((res) => res.json()) as Promise<{ status: number; data: string; }>;
-	},
-};

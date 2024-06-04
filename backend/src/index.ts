@@ -85,7 +85,6 @@ export class Manager {
 
 			ws.on('message', async (data) => {
 				const parsedData = JSON.parse(data.toString()) as DiscordMessage<DiscordMessageTypes>;
-				console.log('ws_message', parsedData);
 
 				switch (parsedData.op) {
 					case 'hello': {
