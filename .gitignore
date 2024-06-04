@@ -1,0 +1,16 @@
+# Frontend
+/frontend/node_modules
+/frontend/.env
+/frontend/.cache
+/frontend/build
+/frontend/public/build
+/frontend/pnpm-lock.yaml
+
+# Backend
+/backend/node_modules
+/backend/pnpm-lock.yaml
+/backend/.env
+/backend/dist
+
+# General
+.vscode

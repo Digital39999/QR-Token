@@ -1,0 +1,14 @@
+version: '3'
+services:
+  qr-log:
+    container_name: qr-log
+    network_mode: bridge
+    pull_policy: build
+    restart: always
+    ports:
+      - 3000:3000
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - stack.env

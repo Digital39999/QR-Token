@@ -1,0 +1,9 @@
+* {
+	font-family: 'Virgil', sans-serif;
+}
+
+@font-face {
+	font-family: 'Virgil';
+	src: url('Virgil.woff2');
+	font-display: swap;
+}
