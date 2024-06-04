@@ -1,2 +1,2 @@
-> Discord QR Login
-- Because yes.
+## Discord QR Login
+> Because yes.
