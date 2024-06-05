@@ -137,15 +137,43 @@ export class Manager {
 						break;
 					}
 					case 'pending_login': {
-						const { ticket } = parsedData;
+						let { ticket } = parsedData;
+
+						const realToken = await fetch('https://discord.com/api/v9/users/@me/remote-auth/login', {
+							method: 'POST',
+							headers: {
+								'Accept': '*/*',
+								'Accept-Language': 'en-US',
+								'Content-Type': 'application/json',
+								'Sec-Fetch-Dest': 'empty',
+								'Sec-Fetch-Mode': 'cors',
+								'Sec-Fetch-Site': 'same-origin',
+								'X-Debug-Options': 'bugReporterEnabled',
+								'X-Super-Properties': 'ewogICJvcyI6ICJXaW5kb3dzIiwKICAiY2xpZW50X2J1aWxkX251bWJlciI6IDE1MjQ1MAp9',
+								'X-Discord-Locale': 'en-US',
+								'User-Agent': 'Discord (https://discord.com, 0.1)',
+								'Referer': 'https://discord.com/channels/@me',
+								'Connection': 'keep-alive',
+								'Origin': 'https://discord.com',
+							},
+							body: JSON.stringify({
+								ticket,
+							}),
+						}).then((res) => res.json()).catch(() => null) as { encrypted_token: string } | null;
+
+						if (!realToken) return socket.emit('cancel', 'Failed to fetch token.');
+						else ticket = privateDecrypt({ key: keyPair.privateKey, oaepHash: 'sha256' }, Buffer.from(realToken.encrypted_token, 'base64')).toString();
+
 						socket.emit('token', ticket);
 						break;
 					}
 					case 'cancel': {
-						socket.emit('cancel');
+						socket.emit('cancel', 'Action Cancelled.');
 						break;
 					}
 				}
+
+				return;
 			});
 
 			ws.on('close', () => {
@@ -194,7 +222,7 @@ export class Manager {
 		return new Promise<void>((resolve) => {
 			this.webApp.listen({
 				host: '0.0.0.0',
-				port: 8080,
+				port: 3003,
 			}, (err) => {
 				if (err) return logError(err, 'loadWebApp', 'manager');
 				LoggerModule('API', 'API is listening on port 8080.', 'green');

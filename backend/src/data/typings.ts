@@ -22,7 +22,7 @@ export type ServerToClientEvents = {
 		id: string;
 	}) => unknown;
 
-	cancel: () => unknown;
+	cancel: (message: string) => unknown;
 }
 
 // For: socket.on

@@ -65,7 +65,7 @@ export default function Index() {
 		socket.on('qrCode', (data) => { setQrImage(data); setIsLoading(false); });
 		socket.on('user', (data) => { setIsLoading(false); setUser(data); setQrImage(null); });
 		socket.on('token', (data) => { setToken(data); setIsLoading(false); });
-		socket.on('cancel', () => {
+		socket.on('cancel', (data) => {
 			setUser(null);
 			setToken(null);
 			setQrImage(null);
@@ -73,7 +73,7 @@ export default function Index() {
 			setShowGenerate(true);
 
 			toast({
-				title: 'Action Cancelled.',
+				title: data,
 				status: 'error',
 				duration: 5000,
 				isClosable: true,
