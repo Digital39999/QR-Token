@@ -5,8 +5,7 @@ export type RoomData = {
 	socket: Socket<ClientToServerEvents, ServerToClientEvents>;
 	ws: WebSocket;
 
-	qrCodeImage?: string;
-	userToken?: string;
+	didInit?: boolean;
 
 	heartId?: NodeJS.Timeout;
 	timeoutId?: NodeJS.Timeout;
@@ -23,6 +22,7 @@ export type ServerToClientEvents = {
 	}) => unknown;
 
 	cancel: (message: string) => unknown;
+	wsClosed: () => unknown;
 }
 
 // For: socket.on

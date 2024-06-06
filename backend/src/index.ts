@@ -69,10 +69,7 @@ export class Manager {
 			this.qrRoom.delete(socket.id);
 		});
 
-		socket.on('init', async () => {
-			const roomData = this.qrRoom.get(socket.id);
-			if (roomData) this.qrRoom.delete(socket.id);
-
+		const initWs = () => {
 			const ws = new WebSocket('wss://remote-auth-gateway.discord.gg/?v=2', {
 				origin: 'https://discord.com',
 			});
@@ -100,8 +97,7 @@ export class Manager {
 						}, timeout_ms);
 
 						this.qrRoom.set(socket.id, {
-							socket,
-							ws,
+							socket, ws,
 							heartId,
 							timeoutId,
 						});
@@ -164,7 +160,9 @@ export class Manager {
 						if (!realToken) return socket.emit('cancel', 'Failed to fetch token.');
 						else ticket = privateDecrypt({ key: keyPair.privateKey, oaepHash: 'sha256' }, Buffer.from(realToken.encrypted_token, 'base64')).toString();
 
+						this.qrRoom.set(socket.id, { socket, ws, didInit: true });
 						socket.emit('token', ticket);
+						ws.close();
 						break;
 					}
 					case 'cancel': {
@@ -183,7 +181,13 @@ export class Manager {
 				clearTimeout(roomData.heartId);
 				clearTimeout(roomData.timeoutId);
 
-				this.setupSocket(socket);
+				this.qrRoom.delete(socket.id);
+				if (!roomData.didInit) {
+					socket.emit('wsClosed');
+					initWs();
+				}
+
+				console.log('Connection closed.');
 			});
 
 			ws.on('error', (err) => {
@@ -191,9 +195,13 @@ export class Manager {
 			});
 
 			this.qrRoom.set(socket.id, {
-				socket,
-				ws,
+				socket, ws,
 			});
+		};
+
+		socket.on('init', () => {
+			initWs();
+			console.log('Initiated.');
 		});
 	}
 

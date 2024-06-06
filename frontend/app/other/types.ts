@@ -9,6 +9,7 @@ export type ServerToClientEvents = {
 	}) => unknown;
 
 	cancel: (message: string) => unknown;
+	wsClosed: () => unknown;
 }
 
 // For: socket.on

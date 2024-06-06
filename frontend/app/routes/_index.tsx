@@ -1,4 +1,4 @@
-import { VStack, Button, Spinner, Input, useToast, Image, Text, Flex } from '@chakra-ui/react';
+import { VStack, Button, Spinner, Input, useToast, Image, Text, Flex, InputRightElement, InputGroup } from '@chakra-ui/react';
 import { ServerToClientEvents, ClientToServerEvents } from '~/other/types';
 import { json, useLoaderData } from '@remix-run/react';
 import { useState, useEffect, useRef } from 'react';
@@ -15,8 +15,9 @@ export default function Index() {
 	const toast = useToast();
 
 	const [showGenerate, setShowGenerate] = useState(false);
-	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
 
+	const [show, setShow] = useState(false);
 	const inputRef = useRef<HTMLInputElement | null>(null);
 	const [inputWidth, setInputWidth] = useState('auto');
 
@@ -43,6 +44,7 @@ export default function Index() {
 
 		connection.on('connect', () => {
 			setShowGenerate(true);
+			setIsLoading(false);
 		});
 
 		connection.on('disconnect', () => {
@@ -65,6 +67,7 @@ export default function Index() {
 		socket.on('qrCode', (data) => { setQrImage(data); setIsLoading(false); });
 		socket.on('user', (data) => { setIsLoading(false); setUser(data); setQrImage(null); });
 		socket.on('token', (data) => { setToken(data); setIsLoading(false); });
+		socket.on('wsClosed', () => { setIsLoading(true); setQrImage(null); setUser(null); setToken(null); });
 		socket.on('cancel', (data) => {
 			setUser(null);
 			setToken(null);
@@ -110,24 +113,32 @@ export default function Index() {
 			)}
 			{token && (
 				<VStack>
-					<Input
-						ref={inputRef}
-						value={token}
-						readOnly
-						bg='gray.900'
-						borderColor={'gray.900'}
-						width={inputWidth}
-						onFocus={() => {
-							window.navigator.clipboard.writeText(token);
-							toast({
-								title: 'Token Copied!',
-								status: 'success',
-								duration: 5000,
-								isClosable: true,
-							});
-						}}
-						sx={{ cursor: 'pointer' }}
-					/>
+					<InputGroup size='md'>
+						<Input
+							ref={inputRef}
+							value={token}
+							readOnly
+							bg='gray.900'
+							borderColor={'gray.900'}
+							width={inputWidth}
+							onFocus={() => {
+								window.navigator.clipboard.writeText(token);
+								toast({
+									title: 'Token Copied!',
+									status: 'success',
+									duration: 5000,
+									isClosable: true,
+								});
+							}}
+							sx={{ cursor: 'pointer' }}
+							type={show ? 'text' : 'password'}
+						/>
+						<InputRightElement width='4.5rem'>
+							<Button h='1.75rem' size='sm' onClick={() => setShow(!show)}>
+								{show ? 'Hide' : 'Show'}
+							</Button>
+						</InputRightElement>
+					</InputGroup>
 					<Button
 						onClick={() => {
 							kill();
