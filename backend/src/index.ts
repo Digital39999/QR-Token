@@ -186,8 +186,6 @@ export class Manager {
 					socket.emit('wsClosed');
 					initWs();
 				}
-
-				console.log('Connection closed.');
 			});
 
 			ws.on('error', (err) => {
@@ -201,7 +199,6 @@ export class Manager {
 
 		socket.on('init', () => {
 			initWs();
-			console.log('Initiated.');
 		});
 	}
 
