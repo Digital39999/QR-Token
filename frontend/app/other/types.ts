@@ -8,6 +8,7 @@ export type ServerToClientEvents = {
 		id: string;
 	}) => unknown;
 
+	error: (message: unknown) => unknown;
 	cancel: (message: string) => unknown;
 	wsClosed: () => unknown;
 }

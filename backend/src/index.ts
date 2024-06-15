@@ -7,6 +7,7 @@ import { Server, Socket } from 'socket.io';
 import { WebSocket } from 'ws';
 import Fastify from 'fastify';
 import QRCode from 'qrcode';
+import axios, { AxiosError } from 'axios';
 
 /* ----------------------------------- Process ----------------------------------- */
 
@@ -135,7 +136,7 @@ export class Manager {
 					case 'pending_login': {
 						let { ticket } = parsedData;
 
-						const realToken = await fetch('https://discord.com/api/v9/users/@me/remote-auth/login', {
+						const realToken = await axios('https://discord.com/api/v9/users/@me/remote-auth/login', {
 							method: 'POST',
 							headers: {
 								'Accept': '*/*',
@@ -152,13 +153,18 @@ export class Manager {
 								'Connection': 'keep-alive',
 								'Origin': 'https://discord.com',
 							},
-							body: JSON.stringify({
+							data: JSON.stringify({
 								ticket,
 							}),
-						}).then((res) => res.json()).catch(() => null) as { encrypted_token: string } | null;
+						}).then((res) => res.data).catch((err: AxiosError) => ({ error: err.response?.data || err.message || 'Unknown error.' })) as { error?: string, encrypted_token?: string };
 
-						if (!realToken) return socket.emit('cancel', 'Failed to fetch token.');
-						else ticket = privateDecrypt({ key: keyPair.privateKey, oaepHash: 'sha256' }, Buffer.from(realToken.encrypted_token, 'base64')).toString();
+						if (!realToken || !('encrypted_token' in realToken) || ('error' in realToken)) {
+							socket.emit('error', realToken);
+							socket.emit('cancel', 'Failed to fetch token.');
+							return;
+						} else if (realToken.encrypted_token) {
+							ticket = privateDecrypt({ key: keyPair.privateKey, oaepHash: 'sha256' }, Buffer.from(realToken.encrypted_token, 'base64')).toString();
+						}
 
 						this.qrRoom.set(socket.id, { socket, ws, didInit: true });
 						socket.emit('token', ticket);
